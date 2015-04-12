@@ -1,0 +1,23 @@
+#BlueJ class context
+comment0.params=
+comment0.target=GameManagerClass()
+comment1.params=
+comment1.target=Game\ getGame()
+comment1.text=\r\n\ @return\ The\ current\ game\ object\ \r\n
+comment2.params=args
+comment2.target=void\ main(java.lang.String[])
+comment3.params=fname
+comment3.target=void\ loadGame(java.lang.String)
+comment3.text=\r\n\ Load\ the\ game\ state\ from\ the\ given\ file.\r\n\r\n\ @param\ fname\ The\ name\ of\ the\ file\ to\ load.\r\n\r\n\ @throws\ FileFailedException\ If,\ for\ whatever\ reason,\ the\ game\ file\ could\ not\ be\ loaded.\r\n\r\n
+comment4.params=fname
+comment4.target=void\ saveGame(java.lang.String)
+comment4.text=\r\n\ Save\ the\ game\ state\ to\ the\ given\ file.\r\n\r\n\ @param\ fname\ The\ name\ of\ the\ file\ to\ save.\r\n\r\n\ @throws\ FileFailedException\ If,\ for\ whatever\ reason,\ the\ game\ file\ could\ not\ be\ saved\ (including\ file\ already\ exists).\r\n\r\n
+comment5.params=
+comment5.target=int\ playGame()
+comment5.text=\r\n\ Play\ the\ current\ game\ to\ completion,\ returning\ the\ playerNum\ of\ the\ winning\ player\ (1..2)\ or\ 0\ if\ the\ game\ ends\ in\ a\ draw.\ Input\ is\ taken\ from\ in\ ({@link\ \#manage\ manage()}).\ If\ a\ computer\ player\ quits\ the\ game\ then\ they\ lose.\ If\ a\ computer\ player\ takes\ longer\ than\ one\ second\ for\ any\ move\ then\ it\ loses.\ After\ each\ turn\ is\ taken\ the\ game\ state\ (toString())\ is\ sent\ to\ out.\r\n\ \ \ \ \ \r\n\ @throws\ QuitGameException\ If\ a\ human\ player\ quits\ the\ game\ via\ QuitGameException.\r\n
+comment6.params=in\ out
+comment6.target=Game\ manage(java.io.InputStream,\ java.io.PrintStream)
+comment6.text=\r\n\ accept\ input\ commands,\ including\ LOAD,\ SAVE,\ NEW,\ EXIT\ from\ the\ specified\ InputStream.\ All\ output\ is\ sent\ to\ the\ specified\ PrintStream.\ Can\ be\ used\ for\ testing\ the\ gameManager\ class\ via\ predefined\ inputs\ (e.g.\ a\ file)\ and\ writing\ the\ output\ to\ file.\ The\ specified\ input\ stream\ and\ output\ streams\ are\ also\ used\ for\ any\ player\ move\ input\ and\ output\ (i.e.\ selecting\ moves\ and\ QUIT).\ If\ a\ result\ is\ achieved\ this\ should\ be\ announced\ to\ the\ user.\r\n\r\n\ @param\ in\ The\ InputStream\ to\ be\ used\ for\ setting\ up\ and\ playing\ the\ game\:\ System.in\ when\ not\ testing.\r\n\r\n\ @param\ out\ The\ OutputStream\ to\ be\ used\ for\ sending\ messages\ to\ the\ user\ while\ setting\ up\ and\ playing\ the\ game\:\ System.out\ when\ not\ testing.\r\n\r\n\ @return\ The\ Game\ state\ after\ the\ instructions\ have\ been\ followed.\r\n
+comment7.params=p1\ p2
+comment7.target=int\ compare(Player,\ Player)
+numComments=8

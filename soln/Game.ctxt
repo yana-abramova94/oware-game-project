@@ -1,0 +1,20 @@
+#BlueJ class context
+comment0.params=
+comment0.target=Player\ getCurrentPlayer()
+comment1.params=
+comment1.target=int\ getCurrentPlayerNum()
+comment2.params=
+comment2.target=Board\ getCurrentBoard()
+comment3.params=
+comment3.target=int\ getResult()
+comment3.text=\r\n\ \ \ \ \ \ \ \ \ @return\ 1\ or\ 2\ corresponding\ to\ the\ winning\ player,\ if\ the\ game\ is\ over\ and\ won.\ Return\ 0\ if\ the\ game\ is\ over\ and\ it\ is\ a\ draw.\ Return\ a\ negative\ value\ if\ the\ game\ is\ not\ over.\r\n
+comment4.params=
+comment4.target=boolean\ positionRepeated()
+comment4.text=\r\n\ @return\ true\ if\ the\ current\ board\ position\ has\ occurred\ before\ in\ the\ history\ of\ the\ game.\r\n
+comment5.params=
+comment5.target=void\ nextMove()
+comment5.text=\r\n\ Get\ a\ move\ from\ the\ current\ player\ and\ update\ the\ board\ and\ current\ player\r\n
+comment6.params=
+comment6.target=java.lang.String\ toString()
+comment6.text=\r\n\ override\ the\ toString\ method\ to\ provide\ a\ summary\ of\ the\ game\ state\ (including\ the\ board)\r\n
+numComments=7
