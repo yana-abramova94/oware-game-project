@@ -39,12 +39,17 @@ public class GameManagerClass implements GameManager
         return this.game;
     }
     
+    public void setGame(GameClass game)
+    {
+        this.game = game;
+    }
+    
     public void main(String args)
     {   
         int state = -1;
         while(true)
         {
-            Game game = new GameClass();
+            GameClass game = new GameClass();
             System.out.print("\u000C");
             if(args == null || args.equals(""))
             {
@@ -54,7 +59,8 @@ public class GameManagerClass implements GameManager
                 System.out.println(" * SAVE");
                 System.out.println(" * LOAD");
                 System.out.println(" * EXIT");
-                game = this.manage(System.in, System.out);
+                game = (GameClass)this.manage(System.in, System.out);
+                this.game = game;
             }
             else 
             {
@@ -68,26 +74,32 @@ public class GameManagerClass implements GameManager
                 }
                 args = "";
             }
-            if(game != null) 
-            {
-                try
-                {
-                    state = this.playGame();
-                }
-                catch(QuitGameException ex)
-                {
-                    System.out.println(ex.getMessage());
-                }
-                
-                if(state == 0) System.out.println("Draw!\n");
-                else if(state == 1 || state == 2) System.out.println("Player " + state + " wins!\n");
-                else System.out.println("Game is not finished. You can save it by the command 'SAVE _fname_'");
-                String input = new String();
-                Scanner scan = new Scanner(System.in);
-                System.out.println("Press any key to go to main menu...");
-                input = scan.nextLine();
-            }
+            this.playMatch(this,state);
         }
+    }
+    
+    public int playMatch(GameManagerClass gameManager, int state)
+    {
+        if(gameManager.game != null) 
+        {
+            try
+            {
+                state = gameManager.playGame();
+            }
+            catch(QuitGameException ex)
+            {
+                System.out.println(ex.getMessage());
+            }
+            
+            if(state == 0) System.out.println("Draw!\n");
+            else if(state == 1 || state == 2) System.out.println("Player " + state + " wins!\n");
+            else System.out.println("Game is not finished. You can save it by the command 'SAVE _fname_'");
+            String input = new String();
+            Scanner scan = new Scanner(System.in);
+            System.out.println("Press any key to go to main menu...");
+            input = scan.nextLine();
+        }
+        return state;
     }
     
     /**
@@ -101,6 +113,7 @@ public class GameManagerClass implements GameManager
     
     public void loadGame(String fname) throws FileFailedException
     {
+        this.game = new GameClass();
         Board board = new BoardClass();
         try
         {
@@ -134,6 +147,7 @@ public class GameManagerClass implements GameManager
             throw new FileFailedException("Cannot find or open the file");
         }
         
+        
     }
     
     /**
@@ -150,7 +164,8 @@ public class GameManagerClass implements GameManager
         try
         {
            FileOutputStream fos = new FileOutputStream(fname);
-           BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
+           OutputStreamWriter osw = new OutputStreamWriter(fos);
+           BufferedWriter writer = new BufferedWriter(osw);
            String input = null;
            Board board = this.game.getCurrentBoard();
            input = board.getSeeds(1,1) + "\n" + board.getSeeds(2,1) + "\n" + board.getSeeds(3,1) + "\n" + board.getSeeds(4,1) + "\n" 
@@ -159,6 +174,8 @@ public class GameManagerClass implements GameManager
                  + board.getScore(1) + "\n" + board.getScore(2) + "\n" + this.game.getCurrentPlayerNum() + "\n" + this.game.isComputerPlayer(1) + "\n" + this.game.isComputerPlayer(2);
            writer.write(input);
            writer.close();
+           osw.close();
+           fos.close();
         }
         catch(Exception ex)
         {
@@ -185,7 +202,19 @@ public class GameManagerClass implements GameManager
         {
             try
             {
+                boolean isComputer = this.game.getCurrentPlayer().isComputer();
+                long startTime = System.nanoTime();
                 this.game.nextMove();
+                long estimatedTime = System.nanoTime() - startTime;
+                if(isComputer)
+                {
+                    if(estimatedTime > 1000000000) 
+                    {
+                        state = this.game.getCurrentPlayerNum();
+                        System.out.println("It took more than one second for computer player to make a move");
+                        break;
+                    }
+                }
                 if(this.game.positionRepeated())
                 {
                     int seeds = 0;
@@ -258,33 +287,31 @@ public class GameManagerClass implements GameManager
                 input = scan.nextLine();
                 String first = "", second = "", firstName = "", secondName = "";
                 String fname = "";
-                if(input.substring(0,3).equals("NEW")) 
+                String[] words = input.split(" "); 
+                if(words != null && words.length == 3 && words[0].equals("NEW")) 
                 {
-                    int colon = input.indexOf(':');
-                    if(colon != -1)
+                    int colon = words[1].indexOf(':');
+                    if(colon!=-1) 
                     {
-                        first = input.substring(4,colon);
-                        int space = input.indexOf(' ', colon);
-                        firstName = input.substring(colon + 1,space);
-                        colon = input.indexOf(':',space);
-                        second = input.substring(space+1,colon);
-                        secondName = input.substring(colon + 1);
-                        input = "NEW";
+                        first = words[1].substring(0,colon);
+                        firstName = words[1].substring(colon + 1);
                     }
-                    else
+                    else first = words[1];
+                    colon = words[2].indexOf(':');
+                     if(colon!=-1) 
                     {
-                        int space = input.indexOf(' ',4);
-                        first = input.substring(4, space);
-                        second = input.substring(space+1);
-                        input = "NEW";
+                        second = words[2].substring(0,colon);
+                        secondName = words[2].substring(colon + 1);
                     }
+                    else second = words[2];
+                    if((first.equals("Human") || first.equals("Computer")) && (second.equals("Human") || second.equals("Computer"))) input = "NEW";
                 }
-                else if(input.substring(0,4).equals("SAVE")) 
+                else if(input.length() > 7 && input.substring(0,4).equals("SAVE")) 
                 {
                     fname = input.substring(5);
                     input = "SAVE";
                 }
-                else if(input.substring(0,4).equals("LOAD")) 
+                else if(input.length() > 7 && input.substring(0,4).equals("LOAD")) 
                 {
                     fname = input.substring(5);
                     input = "LOAD";
@@ -298,7 +325,8 @@ public class GameManagerClass implements GameManager
                     case "SAVE":
                         this.saveGame(fname);
                         invalid = false;
-                        return null;
+                        this.game = null;
+                        break;
                     case "NEW":
                         this.game = new GameClass();
                         if(first.equals("Human"))
@@ -346,11 +374,27 @@ public class GameManagerClass implements GameManager
         {
             out.print(ex.getMessage());
         }
-        return new GameClass();
+        return this.game;
     }
     
     public int compare(Player p1, Player p2)
     {
-        return 0;
+        GameManagerClass gameManager = new GameManagerClass();
+        GameClass game = new GameClass();
+        game.setPlayer(1, p1);
+        game.setPlayer(2, new ComputerPlayer());
+        game.setCurrentPlayer(1);
+        gameManager.setGame(game);
+        int winner1 = gameManager.playMatch(gameManager,-1);
+        game = new GameClass();
+        game.setPlayer(1, p2);
+        game.setPlayer(2, new ComputerPlayer());
+        game.setCurrentPlayer(1);
+        gameManager.setGame(game);
+        int winner2 = gameManager.playMatch(gameManager,-1);
+        if(winner1 == winner2) return 0;
+        if(winner1 > winner2) return 1;
+        if(winner2 > winner1) return 2;
+        return -1;
     }
 }
