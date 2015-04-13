@@ -14,6 +14,7 @@ public class HumanPlayer implements Player
     public HumanPlayer()
     {
         this.setIn(System.in);
+        this.setOut(System.out);
     }
     /**
      *
@@ -33,7 +34,7 @@ public class HumanPlayer implements Player
     {
         String input = new String();
         Scanner scan = new Scanner(this.in);
-        System.out.println("Player " + playerNum + ", please select the house number:");
+        this.out.println("Player " + playerNum + ", please select the house number:");
         int move = 0;
         boolean invalid;
         do{
@@ -48,12 +49,12 @@ public class HumanPlayer implements Player
                 move = Integer.parseInt(input);
                 if(move < 1 || move > 6) 
                 {
-                    System.out.println("Invalid input: please select the house number within 1 and 6:\n");
+                    this.out.println("Invalid input: please select the house number within 1 and 6:\n");
                 }
             }
             catch(NumberFormatException e)
             {
-                System.out.println("Invalid input: a valid input would consist of numbers from 1 to 6 or QUIT.\n");
+                this.out.println("Invalid input: a valid input would consist of numbers from 1 to 6 or QUIT.\n");
                 invalid = true;
             }
             

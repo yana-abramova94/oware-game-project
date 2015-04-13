@@ -27,7 +27,7 @@ public class BoardClass implements Board
     
     public BoardClass()
     {
-        this.houses = new int[]{ 0,0,0,0,0,1,0,0,0,0,0,1 };
+        this.houses = new int[]{ 4,4,4,4,4,4,4,4,4,4,4,4 };
         this.scoreHouse1 = 0;
         this.scoreHouse2 = 0;
     }
