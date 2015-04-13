@@ -8,6 +8,7 @@ import java.io.*;
  */
 public class HumanPlayer implements Player
 {
+    private String name;
     private InputStream in;
     private PrintStream out;
     public HumanPlayer()
@@ -85,5 +86,15 @@ public class HumanPlayer implements Player
     public void setOut(PrintStream out)
     {
         this.out = out;
+    }
+    
+    public String getName()
+    {
+        return this.name;
+    }
+    
+    public void setName(String name)
+    {
+        this.name = name;
     }
 }

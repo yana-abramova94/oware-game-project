@@ -17,11 +17,13 @@ public class GameClass implements Game
     public GameClass()
     {
         this.currentBoard = new BoardClass();
-        this.player1 = new HumanPlayer();
-        this.player2 = new HumanPlayer();
-        this.currentPlayer = this.player1;
-        this.currentPlayerNum = 1;
         this.boardHistory = new ArrayList<String>();        
+    }
+    
+    public boolean isComputerPlayer(int n)
+    {
+        if(n == 1) return this.player1.isComputer();
+        return this.player2.isComputer();
     }
     
     public Player getCurrentPlayer()
@@ -81,14 +83,17 @@ public class GameClass implements Game
     
     public boolean positionRepeated()
     {
+        boolean repeated = false;
         for(String s : this.boardHistory)
         {
             if(s.equals(this.currentBoard.toString())) 
             {
-                return true;
+                repeated = true;
             }
         }
-        return false;
+        this.boardHistory.add(this.currentBoard.toString());
+        System.out.println(this.boardHistory.size());
+        return repeated;
     }
     
     /**
@@ -99,7 +104,7 @@ public class GameClass implements Game
         int selectedHouse = this.getCurrentPlayer().getMove(this.currentBoard, this.getCurrentPlayerNum());
         this.currentBoard.makeMove(selectedHouse, this.getCurrentPlayerNum());
         this.currentPlayerNum = (2-this.currentPlayerNum) + 1;
-        this.currentPlayer = this.currentPlayerNum == 1 ? player2 : player1;
+        this.currentPlayer = this.currentPlayerNum == 1 ? player1 : player2;
     }
     
     /**
@@ -127,5 +132,11 @@ public class GameClass implements Game
         state += "\n";
         state += this.currentBoard.toString();
         return state;
+    }
+    
+    public void setPlayer(int playerNum, Player p)
+    {
+        if(playerNum == 1) this.player1 = p;
+        else this.player2 = p;
     }
 }

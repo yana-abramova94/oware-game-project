@@ -39,25 +39,53 @@ public class GameManagerClass implements GameManager
         return this.game;
     }
     
-    public void main(String[] args)
+    public void main(String args)
     {   
+        int state = -1;
         while(true)
         {
+            Game game = new GameClass();
             System.out.print("\u000C");
-            System.out.println("Welcome to the Oware Game!");
-            System.out.println("\t*** MAIN MENU ***");
-            System.out.println(" * NEW");
-            System.out.println(" * SAVE");
-            System.out.println(" * LOAD");
-            System.out.println(" * EXIT");
-            this.manage(System.in, System.out);
-            try
+            if(args == null || args.equals(""))
             {
-                int state = this.playGame();
+                System.out.println("Welcome to the Oware Game!");
+                System.out.println("\t*** MAIN MENU ***");
+                System.out.println(" * NEW");
+                System.out.println(" * SAVE");
+                System.out.println(" * LOAD");
+                System.out.println(" * EXIT");
+                game = this.manage(System.in, System.out);
             }
-            catch(QuitGameException ex)
+            else 
             {
-                System.out.println(ex.getMessage());
+                try
+                {
+                    this.loadGame(args);
+                }
+                catch(FileFailedException ex)
+                {
+                    System.out.println(ex.getMessage());
+                }
+                args = "";
+            }
+            if(game != null) 
+            {
+                try
+                {
+                    state = this.playGame();
+                }
+                catch(QuitGameException ex)
+                {
+                    System.out.println(ex.getMessage());
+                }
+                
+                if(state == 0) System.out.println("Draw!\n");
+                else if(state == 1 || state == 2) System.out.println("Player " + state + " wins!\n");
+                else System.out.println("Game is not finished. You can save it by the command 'SAVE _fname_'");
+                String input = new String();
+                Scanner scan = new Scanner(System.in);
+                System.out.println("Press any key to go to main menu...");
+                input = scan.nextLine();
             }
         }
     }
@@ -78,30 +106,34 @@ public class GameManagerClass implements GameManager
         {
            FileInputStream fos = new FileInputStream(fname);
            BufferedReader reader = new BufferedReader(new InputStreamReader(fos));
-		   board.setSeeds(Integer.parseInt(reader.readLine()),1,1);
-		   board.setSeeds(Integer.parseInt(reader.readLine()),2,1);
-		   board.setSeeds(Integer.parseInt(reader.readLine()),3,1);
-		   board.setSeeds(Integer.parseInt(reader.readLine()),4,1);
-		   board.setSeeds(Integer.parseInt(reader.readLine()),5,1);
-		   board.setSeeds(Integer.parseInt(reader.readLine()),6,1);
-		   board.setSeeds(Integer.parseInt(reader.readLine()),1,2);
-		   board.setSeeds(Integer.parseInt(reader.readLine()),2,2);
-		   board.setSeeds(Integer.parseInt(reader.readLine()),3,2);
-		   board.setSeeds(Integer.parseInt(reader.readLine()),4,2);
-		   board.setSeeds(Integer.parseInt(reader.readLine()),5,2);
-		   board.setSeeds(Integer.parseInt(reader.readLine()),6,2);
-		   board.setScore(Integer.parseInt(reader.readLine()),1);
-		   board.setScore(Integer.parseInt(reader.readLine()),2);
-		   this.game.setCurrentPlayer(Integer.parseInt(reader.readLine()));
-		   this.game.setCurrentBoard(board);
-		   reader.readLine();
-		   reader.close();
-		}
-		catch(Exception ex)
-		{
-		    throw new FileFailedException("Cannot find or open the file");
-		}
-		
+           board.setSeeds(Integer.parseInt(reader.readLine()),1,1);
+           board.setSeeds(Integer.parseInt(reader.readLine()),2,1);
+           board.setSeeds(Integer.parseInt(reader.readLine()),3,1);
+           board.setSeeds(Integer.parseInt(reader.readLine()),4,1);
+           board.setSeeds(Integer.parseInt(reader.readLine()),5,1);
+           board.setSeeds(Integer.parseInt(reader.readLine()),6,1);
+           board.setSeeds(Integer.parseInt(reader.readLine()),1,2);
+           board.setSeeds(Integer.parseInt(reader.readLine()),2,2);
+           board.setSeeds(Integer.parseInt(reader.readLine()),3,2);
+           board.setSeeds(Integer.parseInt(reader.readLine()),4,2);
+           board.setSeeds(Integer.parseInt(reader.readLine()),5,2);
+           board.setSeeds(Integer.parseInt(reader.readLine()),6,2);
+           board.setScore(Integer.parseInt(reader.readLine()),1);
+           board.setScore(Integer.parseInt(reader.readLine()),2);
+           int currentPlayer = Integer.parseInt(reader.readLine());
+           this.game.setPlayer(1,reader.readLine().equals("true") ? new ComputerPlayer() : new HumanPlayer());
+           this.game.setPlayer(2,reader.readLine().equals("true") ? new ComputerPlayer() : new HumanPlayer());
+           this.game.setCurrentPlayer(currentPlayer);
+           this.game.setCurrentBoard(board);
+           reader.readLine();
+           reader.readLine();
+           reader.close();
+        }
+        catch(Exception ex)
+        {
+            throw new FileFailedException("Cannot find or open the file");
+        }
+        
     }
     
     /**
@@ -124,14 +156,14 @@ public class GameManagerClass implements GameManager
            input = board.getSeeds(1,1) + "\n" + board.getSeeds(2,1) + "\n" + board.getSeeds(3,1) + "\n" + board.getSeeds(4,1) + "\n" 
                  + board.getSeeds(5,1) + "\n" + board.getSeeds(6,1) + "\n" + board.getSeeds(1,2) + "\n" + board.getSeeds(2,2) + "\n"
                  + board.getSeeds(3,2) + "\n" + board.getSeeds(4,2) + "\n" + board.getSeeds(5,2) + "\n" + board.getSeeds(6,2) + "\n"
-                 + board.getScore(1) + "\n" + board.getScore(2) + "\n" + this.game.getCurrentPlayerNum();
-		   writer.write(input);
-		   writer.close();
-		}
-		catch(Exception ex)
-		{
-		    throw new FileFailedException("Cannot find or open the file");
-		}
+                 + board.getScore(1) + "\n" + board.getScore(2) + "\n" + this.game.getCurrentPlayerNum() + "\n" + this.game.isComputerPlayer(1) + "\n" + this.game.isComputerPlayer(2);
+           writer.write(input);
+           writer.close();
+        }
+        catch(Exception ex)
+        {
+            throw new FileFailedException("Cannot find or open the file");
+        }
     }
     
 
@@ -146,12 +178,52 @@ public class GameManagerClass implements GameManager
         System.out.print('\u000C');
         System.out.print(this.game.getCurrentBoard().toString());
         int state = this.game.getResult();
+        int previousScore1 = 0;
+        int previousScore2 = 0;
+        int noCapture = 0;
         while(state == -1)
         {
             try
             {
                 this.game.nextMove();
-                state = this.game.getResult();
+                if(this.game.positionRepeated())
+                {
+                    int seeds = 0;
+                    for(int i = 1; i < 7; i++)
+                    {
+                        seeds = this.game.getCurrentBoard().getSeeds(i,1);
+                        this.game.getCurrentBoard().setSeeds(0,i,1);
+                        this.game.getCurrentBoard().addScore(seeds,1);
+                        seeds = this.game.getCurrentBoard().getSeeds(i,2);
+                        this.game.getCurrentBoard().setSeeds(0,i,2);
+                        this.game.getCurrentBoard().addScore(seeds,2);
+                    }
+                    state = this.game.getCurrentBoard().getScore(1) > this.game.getCurrentBoard().getScore(2) ? 1 : 2;
+                    state = this.game.getCurrentBoard().getScore(1) == 24 && this.game.getCurrentBoard().getScore(2) == 24 ? 0 : state;
+                    System.out.print('\u000C');
+                    System.out.println(this.game.getCurrentBoard().toString());
+                    System.out.println("Position repeated! Capturing all seeds from the board to respective players");
+                    break;
+                }
+                if(this.game.getCurrentBoard().getScore(1) == previousScore1 && this.game.getCurrentBoard().getScore(2) == previousScore2)
+                {
+                    noCapture++;
+                }
+                else
+                {
+                    previousScore1 = this.game.getCurrentBoard().getScore(1);
+                    previousScore2 = this.game.getCurrentBoard().getScore(2);
+                    noCapture = 0;
+                }
+                if(noCapture == 100)
+                {
+                    state = previousScore1 > previousScore2 ? 1 : 2;
+                    state = previousScore1 == previousScore2 ? 0 : state;
+                    System.out.println("100 moves with no capture!");
+                }
+                else  state = this.game.getResult();
+                System.out.print('\u000C');
+                System.out.println(this.game.getCurrentBoard().toString());
             }
             catch(InvalidHouseException ex)
             {
@@ -161,10 +233,8 @@ public class GameManagerClass implements GameManager
             {
                 System.out.println(ex.getMessage());
             }
-        }            
-        if(state == 0) System.out.println("Draw!");
-        else System.out.println("Player " + state + " wins!");
-        return this.game.getResult();
+        }                    
+        return state;
     }
     
     /**
@@ -186,27 +256,88 @@ public class GameManagerClass implements GameManager
                 String input = new String();
                 Scanner scan = new Scanner(in);
                 input = scan.nextLine();
+                String first = "", second = "", firstName = "", secondName = "";
+                String fname = "";
+                if(input.substring(0,3).equals("NEW")) 
+                {
+                    int colon = input.indexOf(':');
+                    if(colon != -1)
+                    {
+                        first = input.substring(4,colon);
+                        int space = input.indexOf(' ', colon);
+                        firstName = input.substring(colon + 1,space);
+                        colon = input.indexOf(':',space);
+                        second = input.substring(space+1,colon);
+                        secondName = input.substring(colon + 1);
+                        input = "NEW";
+                    }
+                    else
+                    {
+                        int space = input.indexOf(' ',4);
+                        first = input.substring(4, space);
+                        second = input.substring(space+1);
+                        input = "NEW";
+                    }
+                }
+                else if(input.substring(0,4).equals("SAVE")) 
+                {
+                    fname = input.substring(5);
+                    input = "SAVE";
+                }
+                else if(input.substring(0,4).equals("LOAD")) 
+                {
+                    fname = input.substring(5);
+                    input = "LOAD";
+                }
                 switch(input)
                 {
                     case "LOAD":
-                        out.print("Write the path of the file where the game is saved: ");
-                        this.loadGame(scan.nextLine());
+                        this.loadGame(fname);
                         invalid = false;
                         break;
                     case "SAVE":
-                        out.print("Write the path of the file where the game is going to be saved: ");
-                        this.saveGame(scan.nextLine());
+                        this.saveGame(fname);
                         invalid = false;
-                        break;
+                        return null;
                     case "NEW":
                         this.game = new GameClass();
+                        if(first.equals("Human"))
+                        {
+                            HumanPlayer player1 = new HumanPlayer();
+                            player1.setName(firstName);
+                            this.game.setPlayer(1, player1);
+                            this.game.setCurrentPlayer(1);
+                        }
+                        else
+                        {
+                            ComputerPlayer player1 = new ComputerPlayer();
+                            player1.setName(firstName);
+                            this.game.setPlayer(1, player1);
+                            this.game.setCurrentPlayer(1);
+                        }
+                        if(second.equals("Human"))
+                        {
+                            HumanPlayer player2 = new HumanPlayer();
+                            player2.setName(secondName);
+                            this.game.setPlayer(2, player2);
+                        }
+                        else
+                        {
+                            ComputerPlayer player2 = new ComputerPlayer();
+                            player2.setName(secondName);
+                            this.game.setPlayer(2, player2);
+                        }
                         invalid = false;
                         break;
                     case "EXIT":
                         System.exit(0);
                         break;
                     default:
-                        out.print("Invalid input: choose between LOAD, SAVE, NEW or EXIT\n"); 
+                        out.print("Invalid input: choose between \n" 
+                            +" 'NEW _player1type_ _player2type_' where the player types are either 'Human' or 'Computer'. The user may optionally specify player names with a colon but no space. E.g. 'NEW Human:Steven Computer:Orac'\n"
+                            +" SAVE, where game can be saved with 'SAVE _fname_\n"
+                            +" LOAD, where the user may load a previously saved game by entering 'LOAD _fname_' where _fname_ is the name of a previously saved game file \n"
+                            +" EXIT\n"); 
                         break;
                 }
             }

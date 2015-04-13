@@ -1,5 +1,5 @@
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
+import java.util.*;
 
 /**
  * Player objects represent players in the game: they select their move based on the Board they are given and which side of the board they are playing. They may quit the game before a result is decided. Results are decided by the {@link Game}.
@@ -15,7 +15,25 @@ import java.io.PrintStream;
  */
 
 public class ComputerPlayer implements Player {
-    
+    private String name;
+    private HashMap<Integer, Integer> movePriority; // Key -> house number, Values -> potentially captured seeds
+    private boolean firstMove;
+    private InputStream in;
+    private OutputStream out;
+    private Board cloneBoard;
+    public ComputerPlayer()
+    {
+        this.firstMove = true;
+        this.movePriority = new HashMap<Integer, Integer>()
+        {{
+            put(1,0);
+            put(2,0);
+            put(3,0);
+            put(4,0);
+            put(5,0);
+            put(6,0);
+        }};
+    }
     /**
      *
      * Computer player moves should take less than one second to complete the getMove method or they forfeit the game.
@@ -32,7 +50,45 @@ public class ComputerPlayer implements Player {
      **/
     public int getMove(Board b, int playerNum) throws QuitGameException
     {
-        return 0;
+        int seeds = 0;
+        if(this.firstMove) 
+        {
+            this.firstMove = false;
+            return 6;
+        }
+        for(int i = 1; i < 7; i++)
+        {
+            try
+            {
+                this.cloneBoard = b.clone();
+                cloneBoard.makeMove(i,playerNum);
+                this.movePriority.put(i,cloneBoard.getScore(playerNum));
+            }
+            catch(InvalidHouseException ex)
+            {
+                this.movePriority.put(i,-1);
+            }
+            catch(InvalidMoveException ex)
+            {
+                this.movePriority.put(i,-1);
+            }
+        }
+        this.sortByValue();
+        HashMap.Entry<Integer, Integer> entry = this.movePriority.entrySet().iterator().next();
+        //seeds = entry.getValue();
+        //if(seeds != 0) 
+        int move = entry.getKey();
+        this.movePriority = new HashMap<Integer, Integer>()
+        {{
+            put(1,0);
+            put(2,0);
+            put(3,0);
+            put(4,0);
+            put(5,0);
+            put(6,0);
+        }};
+        return move;
+        //else
     }
     
     /**
@@ -58,5 +114,37 @@ public class ComputerPlayer implements Player {
      */
     public void setOut(PrintStream out)
     {
+        this.out = out;
+    }
+        
+    // Taken from: http://www.programcreek.com/2013/03/java-sort-map-by-value/
+    public void sortByValue() {	 
+    	List list = new LinkedList(this.movePriority.entrySet());
+     
+    	Collections.sort(list, new Comparator() {
+    		public int compare(Object o1, Object o2) {
+    			return -((Comparable) ((Map.Entry) (o1)).getValue())
+    						.compareTo(((Map.Entry) (o2)).getValue());
+    		}
+    	});
+     
+    	Map sortedMap = new LinkedHashMap();
+    	for (Iterator it = list.iterator(); it.hasNext();) {
+    		Map.Entry entry = (Map.Entry) it.next();
+    		sortedMap.put(entry.getKey(), entry.getValue());
+    	}
+    	this.movePriority = (HashMap) sortedMap;
+    }
+    
+    public String getName()
+    {
+        return this.name;
+    }
+    
+    public void setName(String name)
+    {
+        this.name = name;
     }
 }
+
+

@@ -27,7 +27,7 @@ public class BoardClass implements Board
     
     public BoardClass()
     {
-        this.houses = new int[]{ 0,4,4,0,0,0,0,0,0,0,0,0 };
+        this.houses = new int[]{ 0,0,0,0,0,1,0,0,0,0,0,1 };
         this.scoreHouse1 = 0;
         this.scoreHouse2 = 0;
     }
@@ -117,8 +117,6 @@ public class BoardClass implements Board
         }
         this.setScore(cloneBoard.getScore(1),1);
         this.setScore(cloneBoard.getScore(2),2);
-        System.out.print('\u000C');
-        System.out.println(this.toString());
     }
     
     
