@@ -1,9 +1,8 @@
 import java.util.ArrayList;
 /**
- * Write a description of class GameClass here.
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * @author Yana Abramova
+ * @version 1.0
  */
 public class GameClass implements Game
 {
@@ -20,8 +19,9 @@ public class GameClass implements Game
         this.boardHistory = new ArrayList<String>();        
     }
     
-    public boolean isComputerPlayer(int n)
+    public boolean isComputerPlayer(int n) throws IllegalStateException
     {
+        if(n != 1 && n != 2) throw new IllegalStateException("The argument int n is different from 1 and 2");
         if(n == 1) return this.player1.isComputer();
         return this.player2.isComputer();
     }
@@ -36,14 +36,16 @@ public class GameClass implements Game
         return this.currentPlayerNum;
     }
     
-    public void setCurrentPlayer(int n)
+    public void setCurrentPlayer(int n) throws IllegalStateException
     {
+        if(n != 1 && n != 2) throw new IllegalStateException("The argument int n is different from 1 and 2");
         this.currentPlayerNum = n;
         this.currentPlayer = (n == 1) ? this.player1 : this.player2;
     }
     
-    public void setCurrentBoard(Board board)
+    public void setCurrentBoard(Board board) throws IllegalStateException
     {
+        if(board == null) throw new IllegalStateException("The argument Board board is null");
         this.currentBoard = board;
     }
     
@@ -51,11 +53,6 @@ public class GameClass implements Game
     {
         return this.currentBoard;
     }
-    
-    
-    /**
-     @return 1 or 2 corresponding to the winning player, if the game is over and won. Return 0 if the game is over and it is a draw. Return a negative value if the game is not over.
-     **/
     
     public int getResult()
     {
@@ -77,10 +74,6 @@ public class GameClass implements Game
         }
     }
     
-    /**
-     * @return true if the current board position has occurred before in the history of the game.
-     **/
-    
     public boolean positionRepeated()
     {
         boolean repeated = false;
@@ -96,9 +89,6 @@ public class GameClass implements Game
         return repeated;
     }
     
-    /**
-     * Get a move from the current player and update the board and current player
-     */
     public void nextMove() throws InvalidHouseException, InvalidMoveException, QuitGameException
     {
         int selectedHouse = this.getCurrentPlayer().getMove(this.currentBoard, this.getCurrentPlayerNum());
@@ -106,10 +96,7 @@ public class GameClass implements Game
         this.currentPlayerNum = (2-this.currentPlayerNum) + 1;
         this.currentPlayer = this.currentPlayerNum == 1 ? player1 : player2;
     }
-    
-    /**
-     * override the toString method to provide a summary of the game state (including the board)
-     **/
+
     public String toString()
     {
         String state = new String();
@@ -134,8 +121,10 @@ public class GameClass implements Game
         return state;
     }
     
-    public void setPlayer(int playerNum, Player p)
+    public void setPlayer(int playerNum, Player p) throws IllegalStateException
     {
+        if(playerNum != 1 && playerNum != 2) throw new IllegalStateException("The argument int playerNum is different from 1 and 2");
+        if(p == null) throw new IllegalStateException("The argument Player p is null");
         if(playerNum == 1) this.player1 = p;
         else this.player2 = p;
     }

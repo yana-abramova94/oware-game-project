@@ -3,23 +3,7 @@ import java.io.*;
 import java.util.Scanner;
 /**
  *
- * GameManager objects allow the user to start, load, save and play game(s). In the main method, interaction with the game user is via the console.
- *
- * You need to provide a main method where the first command line parameter can optionally specify a saved game to load ({@link #loadGame loadGame()}) and play ({@link #playGame playGame()}).
- *
- * If a game is not underway the user may start a new game by entering 'NEW _player1type_ _player2type_' where the player types are either 'Human' or 'Computer'. The user may optionally specify player names with a colon but no space. E.g. 'NEW Human:Steven Computer:Orac' will start a new game between a human player called 'Steven' and a computer player called 'Orac'.
- *
- * If a game is not underway the user may load a previously saved game by entering 'LOAD _fname_' where _fname_ is the name of a previously saved game file ({@link #loadGame loadGame()}). The game is then restarted ({@link #playGame playGame()}).
- *
- * If a game is not underway but a game has been set up through LOAD or NEW or command line parameter then the game can be saved with 'SAVE _fname_'.
- *
- * If a game is not underway (e.g. because the game has finished) then the command 'EXIT' halts the program.
- 
- * The GameManager also implements Comparator on Player by playing two games, with the two players taking turns to start. If the two games yield symmetric results (e.g. player 1 wins, player 2 wins) the the players are considered equal, otherwise the better player is better ...
- *
- * You need to provide a default constructor (no parameters) for a GameManager.
- *
- * @author Steven Bradley
+ * @author Yana Abramova
  * @version 1.0
  *
  */
@@ -39,13 +23,14 @@ public class GameManagerClass implements GameManager
         return this.game;
     }
     
-    public void setGame(GameClass game)
+    public void setGame(GameClass game) throws IllegalStateException
     {
+        if(game == null) throw new IllegalStateException("The argument GameClass game is null");
         this.game = game;
     }
     
     public void main(String args)
-    {   
+    {
         int state = -1;
         while(true)
         {
@@ -70,7 +55,17 @@ public class GameManagerClass implements GameManager
                 }
                 catch(FileFailedException ex)
                 {
-                    System.out.println(ex.getMessage());
+                    
+                    System.out.println(ex.getMessage() + " " + args);
+                    System.out.println("Press any key to proceed to main menu...");
+                    args = "";
+                    try
+                    {
+                        System.in.read();
+                    }  
+                    catch(Exception e)
+                    {} 
+                    continue;
                 }
                 args = "";
             }
@@ -78,8 +73,10 @@ public class GameManagerClass implements GameManager
         }
     }
     
-    public int playMatch(GameManagerClass gameManager, int state)
+    public int playMatch(GameManagerClass gameManager, int state) throws IllegalStateException
     {
+        if(gameManager == null) throw new IllegalStateException("The argument GameManagerClass gameManager is null");
+        if(state != -1 && state != 0 && state != 1 && state != 2) throw new IllegalStateException("The argument int state is different from -1, 0, 1 or 2");
         if(gameManager.game != null) 
         {
             try
@@ -102,17 +99,10 @@ public class GameManagerClass implements GameManager
         return state;
     }
     
-    /**
-     * Load the game state from the given file.
-     *
-     * @param fname The name of the file to load.
-     *
-     * @throws FileFailedException If, for whatever reason, the game file could not be loaded.
-     *
-     */
-    
-    public void loadGame(String fname) throws FileFailedException
+    public void loadGame(String fname) throws FileFailedException, IllegalStateException
     {
+        if(fname == null) throw new IllegalStateException("The argument String fname is null");
+        if(fname.equals("")) throw new IllegalStateException("The argument String fname is empty");
         this.game = new GameClass();
         Board board = new BoardClass();
         try
@@ -142,25 +132,23 @@ public class GameManagerClass implements GameManager
            reader.readLine();
            reader.close();
         }
-        catch(Exception ex)
+        catch(FileNotFoundException ex)
         {
             throw new FileFailedException("Cannot find or open the file");
         }
-        
-        
+        catch(IOException ex)
+        {
+            throw new FileFailedException("Cannot find or open the file");
+        }
+        catch(InvalidHouseException ex)
+        {
+        }
     }
     
-    /**
-     * Save the game state to the given file.
-     *
-     * @param fname The name of the file to save.
-     *
-     * @throws FileFailedException If, for whatever reason, the game file could not be saved (including file already exists).
-     *
-     */
-    
-    public void saveGame(String fname) throws FileFailedException
+    public void saveGame(String fname) throws FileFailedException, IllegalStateException
     {
+        if(fname == null) throw new IllegalStateException("The argument String fname is null");
+        if(fname.equals("")) throw new IllegalStateException("The argument String fname is empty"); 
         try
         {
            FileOutputStream fos = new FileOutputStream(fname);
@@ -182,18 +170,11 @@ public class GameManagerClass implements GameManager
             throw new FileFailedException("Cannot find or open the file");
         }
     }
-    
 
-    /**
-     * Play the current game to completion, returning the playerNum of the winning player (1..2) or 0 if the game ends in a draw. Input is taken from in ({@link #manage manage()}). If a computer player quits the game then they lose. If a computer player takes longer than one second for any move then it loses. After each turn is taken the game state (toString()) is sent to out.
-     
-     * @throws QuitGameException If a human player quits the game via QuitGameException.
-     **/
-    
     public int playGame() throws QuitGameException
     {
         System.out.print('\u000C');
-        System.out.print(this.game.getCurrentBoard().toString());
+        System.out.println(this.game.getCurrentBoard().toString());
         int state = this.game.getResult();
         int previousScore1 = 0;
         int previousScore2 = 0;
@@ -266,17 +247,11 @@ public class GameManagerClass implements GameManager
         return state;
     }
     
-    /**
-     * accept input commands, including LOAD, SAVE, NEW, EXIT from the specified InputStream. All output is sent to the specified PrintStream. Can be used for testing the gameManager class via predefined inputs (e.g. a file) and writing the output to file. The specified input stream and output streams are also used for any player move input and output (i.e. selecting moves and QUIT). If a result is achieved this should be announced to the user.
-     *
-     * @param in The InputStream to be used for setting up and playing the game: System.in when not testing.
-     *
-     * @param out The OutputStream to be used for sending messages to the user while setting up and playing the game: System.out when not testing.
-     *
-     * @return The Game state after the instructions have been followed.
-     **/
-    public Game manage(InputStream in, PrintStream out) 
+    public Game manage(InputStream in, PrintStream out) throws IllegalStateException
     {
+        String fname = "";
+        if(in == null) throw new IllegalStateException("The argument InputStream in is null");
+        if(out == null) throw new IllegalStateException("The argument PrintStream out is null");
         boolean invalid = true;
         try
         {
@@ -286,7 +261,6 @@ public class GameManagerClass implements GameManager
                 Scanner scan = new Scanner(in);
                 input = scan.nextLine();
                 String first = "", second = "", firstName = "", secondName = "";
-                String fname = "";
                 String[] words = input.split(" "); 
                 if(words != null && words.length == 3 && words[0].equals("NEW")) 
                 {
@@ -372,13 +346,27 @@ public class GameManagerClass implements GameManager
         }
         catch(FileFailedException ex)
         {
-            out.print(ex.getMessage());
+            System.out.println(ex.getMessage() + " " + fname);
+            System.out.println("Press any key to proceed to main menu...");
+            try
+            {
+                System.in.read();
+            }  
+            catch(Exception e)
+            {} 
+            return null;
+        }
+        catch(Exception ex)
+        {
+            System.out.println(ex.getMessage());
         }
         return this.game;
     }
     
-    public int compare(Player p1, Player p2)
+    public int compare(Player p1, Player p2) throws IllegalStateException
     {
+        if(p1 == null) throw new IllegalStateException("The argument Player p1 is null");
+        if(p2 == null) throw new IllegalStateException("The argument Player p2 is null");
         GameManagerClass gameManager = new GameManagerClass();
         GameClass game = new GameClass();
         game.setPlayer(1, p1);

@@ -1,10 +1,10 @@
 import java.util.Scanner;
 import java.io.*;
 /**
- * Write a description of class HumanPlayer here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
+ *
+ * @author Yana Abramova
+ * @version 1.0
+ *
  */
 public class HumanPlayer implements Player
 {
@@ -16,25 +16,14 @@ public class HumanPlayer implements Player
         this.setIn(System.in);
         this.setOut(System.out);
     }
-    /**
-     *
-     * Computer player moves should take less than one second to complete the getMove method or they forfeit the game.
-     *
-     * @param b An copy of the game that the player may experiment with. It should be a copy of the game so that the computer cannot cheat and experiments do not affect game play.
-     *
-     * @param playerNum
-     * the number of the player: 1 or 2.
-     *
-     * @return the position of the house selected (counting anti-clockwise): a value in the range 1..6
-     *
-     * @throws QuitGameException if, instead of choosing a house, a human player chooses to quit by entering 'QUIT'. If a computer player throws QuitGameException they forfeit the game ({@link #isComputer()}).
-     *
-     **/
-    public int getMove(Board b, int playerNum) throws QuitGameException
+
+    public int getMove(Board b, int playerNum) throws QuitGameException, IllegalStateException
     {
+        if(b == null) throw new IllegalStateException("The argument Board b is null");
+        if(playerNum != 1 && playerNum != 2) throw new IllegalStateException("The argument int playerNum is different from 1 and 2");
         String input = new String();
         Scanner scan = new Scanner(this.in);
-        this.out.println("Player " + playerNum + ", please select the house number:");
+        this.out.println("Player " + (!this.name.equals("") ? this.name : playerNum) + ", please select the house number:");
         int move = 0;
         boolean invalid;
         do{
@@ -61,31 +50,21 @@ public class HumanPlayer implements Player
         } while(move < 1 || move > 6 || invalid);
         return move;
     }
-    
-    /**
-     * returns true is this is a computer player. Computer players are limited to one second per move (on E216 computers) and forfeit the game if they quit or make an invalid move.
-     **/
+
     public boolean isComputer()
     {
         return false;
     }
-
-
     
-    /**
-     * set the input stream for human commands (house numbers and QUIT).
-     *
-     **/
-    public void setIn(InputStream in)
+    public void setIn(InputStream in) throws IllegalStateException
     {
+        if(in == null) throw new IllegalStateException("The argument InputStream in is null");
         this.in = in;
     }
-    
-    /**
-     * set the output stream for board state 
-     */
-    public void setOut(PrintStream out)
+
+    public void setOut(PrintStream out) throws IllegalStateException
     {
+        if(out == null) throw new IllegalStateException("The argument PrintStream out is null");
         this.out = out;
     }
     
@@ -94,8 +73,9 @@ public class HumanPlayer implements Player
         return this.name;
     }
     
-    public void setName(String name)
+    public void setName(String name) throws IllegalStateException
     {
+        if(name == null) throw new IllegalStateException("The argument String name is null");
         this.name = name;
     }
 }

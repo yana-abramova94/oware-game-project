@@ -2,16 +2,10 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Player objects represent players in the game: they select their move based on the Board they are given and which side of the board they are playing. They may quit the game before a result is decided. Results are decided by the {@link Game}.
  *
- * You need to provide two implementations of this interface, one called HumanPlayer, which acts under control of the user, and one called ComputerPlayer which plays automatically and as well as it can within the time constraints.
- *
- * Input from the human players and output to the players can be redirected with in and out. Your Player should always use in and out for input and output rather than System.in and System.out.
- * 
- * A default contructor with no parameters is required for each imeplementation of the interface. By default the input should be set to System.in and the output stream to System.out
- *
- * @author Steven Bradley
+ * @author Yana Abramova
  * @version 1.0
+ *
  */
 
 public class ComputerPlayer implements Player {
@@ -34,22 +28,11 @@ public class ComputerPlayer implements Player {
             put(6,0);
         }};
     }
-    /**
-     *
-     * Computer player moves should take less than one second to complete the getMove method or they forfeit the game.
-     *
-     * @param b An copy of the game that the player may experiment with. It should be a copy of the game so that the computer cannot cheat and experiments do not affect game play.
-     *
-     * @param playerNum
-     * the number of the player: 1 or 2.
-     *
-     * @return the position of the house selected (counting anti-clockwise): a value in the range 1..6
-     *
-     * @throws QuitGameException if, instead of choosing a house, a human player chooses to quit by entering 'QUIT'. If a computer player throws QuitGameException they forfeit the game ({@link #isComputer()}).
-     *
-     **/
-    public int getMove(Board b, int playerNum) throws QuitGameException
+
+    public int getMove(Board b, int playerNum) throws QuitGameException, IllegalStateException
     {
+        if(b == null) throw new IllegalStateException("The argument Board b is null");
+        if(playerNum != 1 && playerNum != 2) throw new IllegalStateException("The argument int playerNum is different from 1 and 2");
         int seeds = 0;
         if(this.firstMove) 
         {
@@ -90,50 +73,41 @@ public class ComputerPlayer implements Player {
         return move;
         //else
     }
-    
-    /**
-     * returns true is this is a computer player. Computer players are limited to one second per move (on E216 computers) and forfeit the game if they quit or make an invalid move.
-     **/
+
     public boolean isComputer()
     {
         return true;
     }
 
-    
-    /**
-     * set the input stream for human commands (house numbers and QUIT).
-     *
-     **/
-    public void setIn(InputStream in)
+    public void setIn(InputStream in) throws IllegalStateException
     {
+        if(in == null) throw new IllegalStateException("The argument InputStream in is null");
         this.in = in;
     }
-    
-    /**
-     * set the output stream for board state 
-     */
-    public void setOut(PrintStream out)
+
+    public void setOut(PrintStream out) throws IllegalStateException
     {
+        if(out == null) throw new IllegalStateException("The argument PrintStream out is null");
         this.out = out;
     }
         
     // Taken from: http://www.programcreek.com/2013/03/java-sort-map-by-value/
-    public void sortByValue() {	 
-    	List list = new LinkedList(this.movePriority.entrySet());
+    public void sortByValue() {  
+        List list = new LinkedList(this.movePriority.entrySet());
      
-    	Collections.sort(list, new Comparator() {
-    		public int compare(Object o1, Object o2) {
-    			return -((Comparable) ((Map.Entry) (o1)).getValue())
-    						.compareTo(((Map.Entry) (o2)).getValue());
-    		}
-    	});
+        Collections.sort(list, new Comparator() {
+            public int compare(Object o1, Object o2) {
+                return -((Comparable) ((Map.Entry) (o1)).getValue())
+                            .compareTo(((Map.Entry) (o2)).getValue());
+            }
+        });
      
-    	Map sortedMap = new LinkedHashMap();
-    	for (Iterator it = list.iterator(); it.hasNext();) {
-    		Map.Entry entry = (Map.Entry) it.next();
-    		sortedMap.put(entry.getKey(), entry.getValue());
-    	}
-    	this.movePriority = (HashMap) sortedMap;
+        Map sortedMap = new LinkedHashMap();
+        for (Iterator it = list.iterator(); it.hasNext();) {
+            Map.Entry entry = (Map.Entry) it.next();
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+        this.movePriority = (HashMap) sortedMap;
     }
     
     public String getName()
@@ -141,8 +115,9 @@ public class ComputerPlayer implements Player {
         return this.name;
     }
     
-    public void setName(String name)
+    public void setName(String name) throws IllegalStateException
     {
+        if(name == null) throw new IllegalStateException("The argument String name is null");
         this.name = name;
     }
 }

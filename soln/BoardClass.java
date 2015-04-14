@@ -1,29 +1,15 @@
 import java.util.ArrayList;
 /**
- * Write a description of class BoardClass here.
- * 
- * @author Yana Abramova 
+ *
+ * @author Yana Abramova
  * @version 1.0
+ *
  */
 public class BoardClass implements Board
 {
     private int[] houses;
     private int scoreHouse1;
     private int scoreHouse2;    
-    /**
-     * update the board to make a move from the specified house of the specified player
-     *
-     * @param house in range 1..6 representing the house position (starting from anticlockwise)
-     *
-     * @param playerNum in range 1..2
-     *
-     * @throws InvalidHouseException if the range or playerNum are not in the right range
-     *
-     * @throws InvalidMoveException if  the house does not
-     * represent a valid move because either the house is empty, or the move would leave the opponent without
-     * a move to make
-     *
-     **/
     
     public BoardClass()
     {
@@ -118,22 +104,14 @@ public class BoardClass implements Board
         this.setScore(cloneBoard.getScore(1),1);
         this.setScore(cloneBoard.getScore(2),2);
     }
-    
-    
-    /**
-     * the number of seeds in the specified house of the specified player. See {@link Board#makeMove makeMove()} for parameterDetails
-     *
-     */
+
     public int getSeeds(int house, int playerNum) throws InvalidHouseException
     {
         if(house < 1 || house > 6 || playerNum < 1 || playerNum > 2) throw new InvalidHouseException("Invalid house number.");
         int seeds = this.houses[(playerNum-1)*6 + house-1];         
         return seeds;
     }
-    
-    /**
-     * sow a seed in a location: increase the number of seeds already there by one
-     **/
+
     public void sowSeed(int house, int playerNum) throws InvalidHouseException
     {
         if(playerNum != 1 && playerNum != 2)
@@ -146,10 +124,7 @@ public class BoardClass implements Board
         }
         this.houses[(playerNum-1)*6 + house-1]++;
     }
-    
-    /**
-     * set the number of seeds in a house to a given value
-     */
+
     public void setSeeds(int seeds, int house, int playerNum) throws InvalidHouseException
     {
         if(playerNum != 1 && playerNum != 2)
@@ -162,25 +137,27 @@ public class BoardClass implements Board
         }
         this.houses[(playerNum - 1)*6 + house-1] = seeds;
     }
-    
-    /**
-     * find the number of seeds in a player score house
-     **/
-    public int getScore(int playerNum)
+
+    public int getScore(int playerNum) throws IllegalStateException
     {
+        if(playerNum != 1 && playerNum != 2)
+        {
+            throw new IllegalStateException("Invalid player number: choose between 1 and 2.");
+        }
         if(playerNum == 1)
         {
             return this.scoreHouse1;
         }
         return this.scoreHouse2;
     }
-    
-    
-    /**
-     * increase a player's score by putting seeds into their score house
-     **/
-    public void addScore(int seeds, int playerNum)
+
+    public void addScore(int seeds, int playerNum) throws IllegalStateException
     {
+        if(playerNum != 1 && playerNum != 2)
+        {
+            throw new IllegalStateException("Invalid player number: choose between 1 and 2.");
+        }
+        if(seeds < 0) throw new IllegalStateException("The number of seeds is negative");
         if(playerNum == 1)
         {
             this.scoreHouse1 += seeds;
@@ -191,23 +168,20 @@ public class BoardClass implements Board
         }
     }
 
-    
-    /**
-     * set the number of seeds in a player's score house
-     */
-    public void setScore(int seeds, int playerNum)
+    public void setScore(int seeds, int playerNum) throws IllegalStateException
     {
+        if(playerNum != 1 && playerNum != 2)
+        {
+            throw new IllegalStateException("Invalid player number: choose between 1 and 2.");
+        }
+        if(seeds < 0) throw new IllegalStateException("The number of seeds is negative");
         if(playerNum == 1)
         {
             this.scoreHouse1 = seeds;
         }
         this.scoreHouse2 = seeds;
     }
-        
-    
-    /**
-     * override the toString method to provide a summary of the board state
-     **/
+
     public String toString()
     {
         String state = new String();
@@ -228,9 +202,6 @@ public class BoardClass implements Board
        return state;
     }
 
-    /**
-     * override the clone method to copy a board state that can be passed to a player;
-     **/
     public Board clone()
     {
         Board clone = new BoardClass();
@@ -254,10 +225,10 @@ public class BoardClass implements Board
         return clone;
     }
 
-    /**
-     * override equals
-     *
-     **/
-
-    public boolean equals(Object o){   return false; }
+    public boolean equals(Object o) throws IllegalStateException
+    {   
+        if(o == null) throw new IllegalStateException("The argument Object o is null");
+        Board other = (Board) o;
+        return this.toString().equals(other.toString());
+    }
 }
